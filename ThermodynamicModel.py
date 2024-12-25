@@ -84,7 +84,13 @@ class ThermodynamicModel:
         """
         H = self.calculate_enthalpy(T)
         S = self.calculate_entropy(T)
-        return self.H_del - H * 1000 - T * S
+        return H - T * S
+
+    def calculate_phi(self, H, G, T):
+        """
+        Вычисление приведённого потенциала Гиббса Φ(T) для конкретных значений H, G и T.
+        """
+        return (self.H_del - H - G) / T
 
     def plot_properties(self):
         """
@@ -94,6 +100,7 @@ class ThermodynamicModel:
         enthalpy = [self.calculate_enthalpy(T) / 1000.0 for T in self.T_data]
         entropy = [self.calculate_entropy(T) for T in self.T_data]
         gibbs = [self.calculate_gibbs(T) / 100 for T in self.T_data]
+        phi = [self.calculate_phi(enthalpy[i], gibbs[i], self.T_data[i]) for i in range(len(self.T_data))]
 
         plt.figure(figsize=(12, 8))
 
@@ -141,6 +148,7 @@ class ThermodynamicModel:
         enthalpy = [self.calculate_enthalpy(T) / 1000.0 for T in self.T_data]
         entropy = [self.calculate_entropy(T) for T in self.T_data]
         gibbs = [self.calculate_gibbs(T) for T in self.T_data]
+        phi = [self.calculate_phi(enthalpy[i], gibbs[i], self.T_data[i]) for i in range(len(self.T_data))]
 
         # Создание таблицы
         data_table = pd.DataFrame({
@@ -149,7 +157,8 @@ class ThermodynamicModel:
             "Fitted Cp": Cp_fitted,
             "Enthalpy (H)": enthalpy,
             "Entropy (S)": entropy,
-            "Gibbs Potential (Φ)": gibbs
+            "Gibbs Potential": gibbs,
+            "Phi (Ф)": phi
         })
 
         return data_table
